@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package calculator;
+option go_package="calculatorpb";
+
+message Input {
+    float num1 = 1;
+    float num2 = 2;
+}
+
+message CalculatorRequest {
+    Input Input = 1;
+}
+
+message CalculatorResponse {
+    float result = 1;
+}
+
+service CalculatorService{
+    // Unary - ctc316
+    rpc Sum(CalculatorRequest) returns (CalculatorResponse) {};
+}
