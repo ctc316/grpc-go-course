@@ -3,20 +3,31 @@ syntax = "proto3";
 package calculator;
 option go_package="calculatorpb";
 
-message Input {
+message Input2Num {
     float num1 = 1;
     float num2 = 2;
 }
 
-message CalculatorRequest {
-    Input Input = 1;
+message SumRequest {
+    Input2Num Input2Num = 1;
 }
 
-message CalculatorResponse {
+message SumResponse {
     float result = 1;
+}
+
+message PrimeDecomposeRequest {
+    int64 num = 1;
+}
+
+message PrimeDecomposeReponse {
+    int64 result = 1;
 }
 
 service CalculatorService{
     // Unary - ctc316
-    rpc Sum(CalculatorRequest) returns (CalculatorResponse) {};
+    rpc Sum(SumRequest) returns (SumResponse) {};
+
+    // Server Streaming - ctc316
+    rpc PrimeDecompose(PrimeDecomposeRequest) returns (stream PrimeDecomposeReponse) {};
 }
