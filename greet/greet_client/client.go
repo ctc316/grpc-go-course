@@ -72,42 +72,19 @@ func doServerStreaming(c greetpb.GreetServiceClient) {
 }
 
 func doClientStreaming(c greetpb.GreetServiceClient) {
-	fmt.Println("Starting to do a CLient Streaming RPC...")
+	fmt.Println("Starting to do a Client Streaming RPC...")
 
-	requests := []*greetpb.LongGreetRequest{
-		&greetpb.LongGreetRequest{
-			Greeting: &greetpb.Greeting{
-				FirstName: "Stephane",
-			},
-		},
-		&greetpb.LongGreetRequest{
-			Greeting: &greetpb.Greeting{
-				FirstName: "John",
-			},
-		},
-		&greetpb.LongGreetRequest{
-			Greeting: &greetpb.Greeting{
-				FirstName: "Lucy",
-			},
-		},
-		&greetpb.LongGreetRequest{
-			Greeting: &greetpb.Greeting{
-				FirstName: "Mark",
-			},
-		},
-		&greetpb.LongGreetRequest{
-			Greeting: &greetpb.Greeting{
-				FirstName: "Piper",
-			},
-		},
-	}
 	stream, err := c.LongGreet(context.Background())
 	if err != nil {
 		log.Fatalf("error while calling LongGreet: %v", err)
 	}
 
 	// we iterate over our slice and send each message individually
-	for _, req := range requests {
+	for _, name := range []string{"Stephane", "John", "Lucy", "Mark", "Piper"} {
+		req := &greetpb.LongGreetRequest{
+			Greeting: &greetpb.Greeting{
+				FirstName: name,
+			}}
 		fmt.Printf("Sending req: %v\n", req)
 		stream.Send(req)
 		time.Sleep(500 * time.Millisecond)
