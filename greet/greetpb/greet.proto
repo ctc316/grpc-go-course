@@ -32,6 +32,14 @@ message LongGreetResponse {
     string result = 1;
 }
 
+message GreetEveryoneRequest {
+    Greeting greeting = 1;
+}
+
+message GreetEveryoneResponse {
+    string result = 1;
+}
+
 service GreetService{
     // Unary - ctc316
     rpc Greet(GreetRequest) returns (GreetResponse) {};
@@ -39,6 +47,9 @@ service GreetService{
     // Server Streaming - ctc316
     rpc GreetManyTimes(GreetManyTimesRequest) returns (stream GreetManyTimesResponse) {};
 
-    //Client Streaming - ctc316
-    rpc LongGreet (stream LongGreetRequest) returns (LongGreetResponse);
+    // Client Streaming - ctc316
+    rpc LongGreet(stream LongGreetRequest) returns (LongGreetResponse);
+
+    // Bidirectional Streaming - ctc316
+    rpc GreetEveryone(stream GreetEveryoneRequest) returns (stream GreetEveryoneResponse) {};
 }
