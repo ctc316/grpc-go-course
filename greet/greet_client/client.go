@@ -107,6 +107,7 @@ func doBiDiStreaming(c greetpb.GreetServiceClient) {
 		log.Fatalf("Error while creating stream: %v", err)
 		return
 	}
+	defer stream.CloseSend()
 
 	waitc := make(chan struct{})
 	// we send a bunch of messages to the client (go routine)
@@ -139,4 +140,5 @@ func doBiDiStreaming(c greetpb.GreetServiceClient) {
 	}()
 	// block until everything is done
 	<-waitc
+
 }
