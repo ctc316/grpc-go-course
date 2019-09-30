@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
 	"github.com/ctc316/grpc-go-course/greet/greetpb"
@@ -18,7 +19,15 @@ import (
 func main() {
 	fmt.Println("Hello I'm a client")
 
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	certFile := "ssl/ca.crt" // Certificate Authority Trust certificate
+	creds, sslErr := credentials.NewClientTLSFromFile(certFile, "")
+	if sslErr != nil {
+		log.Fatalf("Error while loading CA trust certificate: %v", sslErr)
+		return
+	}
+	opts := grpc.WithTransportCredentials(creds)
+
+	conn, err := grpc.Dial("localhost:50051", opts)
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
