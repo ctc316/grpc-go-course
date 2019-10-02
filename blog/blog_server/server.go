@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/signal"
 
+	"google.golang.org/grpc/reflection"
+
 	"google.golang.org/grpc/codes"
 
 	"github.com/ctc316/grpc-go-course/blog/blogpb"
@@ -227,10 +229,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
-
 	opts := []grpc.ServerOption{}
 	s := grpc.NewServer(opts...)
 	blogpb.RegisterBlogServiceServer(s, &server{})
+	reflection.Register(s)
 
 	go func() {
 		fmt.Println("Starting Server...")
