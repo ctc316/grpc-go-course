@@ -32,7 +32,7 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 		Content:  blog.GetContent(),
 	}
 
-	fmt.Printf("Creating blog request: %v\n", blog)
+	fmt.Printf("Create blog request: %v\n", blog)
 
 	res, err := collection.InsertOne(context.Background(), data)
 	if err != nil {
@@ -61,7 +61,7 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 
 func (*server) ReadBlog(ctx context.Context, req *blogpb.ReadBlogRequest) (*blogpb.ReadBlogResponse, error) {
 	blogID := req.GetBlogId()
-	fmt.Printf("Reading blog request: %v\n", blogID)
+	fmt.Printf("Read blog request: %v\n", blogID)
 
 	oid, err := primitive.ObjectIDFromHex(blogID)
 	if err != nil {
@@ -98,7 +98,7 @@ func dataToBlogPb(data *blogItem) *blogpb.Blog {
 }
 
 func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*blogpb.UpdateBlogResponse, error) {
-	fmt.Println("Updating blog request")
+	fmt.Println("Update blog request")
 	blog := req.GetBlog()
 
 	oid, err := primitive.ObjectIDFromHex(blog.GetId())
@@ -138,7 +138,7 @@ func (*server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) (*
 }
 
 func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*blogpb.DeleteBlogResponse, error) {
-	fmt.Println("Deleting blog request")
+	fmt.Println("Delete blog request")
 	oid, err := primitive.ObjectIDFromHex(req.GetBlogId())
 	if err != nil {
 		return nil, status.Errorf(
@@ -164,6 +164,39 @@ func (*server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*
 	}
 
 	return &blogpb.DeleteBlogResponse{BlogId: req.GetBlogId()}, nil
+}
+
+func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_ListBlogServer) error {
+	fmt.Println("List blog request")
+	cur, err := collection.Find(context.Background(), bson.D{})
+	if err != nil {
+		return status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal error: %v", err),
+		)
+	}
+	defer cur.Close(context.Background())
+
+	for cur.Next(context.Background()) {
+		data := &blogItem{}
+		err := cur.Decode(data)
+		if err != nil {
+			return status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Error while decoding data from MongoDB: %v", err),
+			)
+		}
+		stream.Send(&blogpb.ListBlogResponse{Blog: dataToBlogPb(data)})
+	}
+
+	if err := cur.Err(); err != nil {
+		return status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal err: %v", err),
+		)
+	}
+
+	return nil
 }
 
 type blogItem struct {
